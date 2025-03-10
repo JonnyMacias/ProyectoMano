@@ -121,7 +121,7 @@ class GuardadCSv:
         # **Reentrenar modelo y guardar historial**
         print("Inicio")
         print("Valores de entrada" + str(X_train.shape))
-        history = model.fit(X_train, y_train, epochs=20, verbose=1, validation_split=0.2)
+        history = model.fit(X_train, y_train, epochs=50, verbose=1, validation_split=0.2)
         print("Finalizo")
         # **Guardar modelo**
         model.save(rutaRed)
