@@ -166,48 +166,12 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
             # Postura (brazos)
                 if results.pose_landmarks:
                     frame_data["datos_brazos"]["Brazo Derecho"] = {
-                    "Brazo": calcular_pendiente(
-                        (
-                            results.pose_landmarks.landmark[11].x,
-                            results.pose_landmarks.landmark[11].y,
-                        ),
-                        (
-                            results.pose_landmarks.landmark[13].x,
-                            results.pose_landmarks.landmark[13].y,
-                        ),
-                    ),
-                    "Antebrazo": calcular_pendiente(
-                        (
-                            results.pose_landmarks.landmark[13].x,
-                            results.pose_landmarks.landmark[13].y,
-                        ),
-                        (
-                            results.pose_landmarks.landmark[15].x,
-                            results.pose_landmarks.landmark[15].y,
-                        ),
-                    ),
+                    "Brazo": calcular_pendiente((results.pose_landmarks.landmark[11].x,results.pose_landmarks.landmark[11].y,),(results.pose_landmarks.landmark[13].x,results.pose_landmarks.landmark[13].y,),),
+                    "Antebrazo": calcular_pendiente((results.pose_landmarks.landmark[13].x,results.pose_landmarks.landmark[13].y,),(results.pose_landmarks.landmark[15].x,results.pose_landmarks.landmark[15].y,),),
                 }
                     frame_data["datos_brazos"]["Brazo Izquierdo"] = {
-                    "Brazo": calcular_pendiente(
-                        (
-                            results.pose_landmarks.landmark[12].x,
-                            results.pose_landmarks.landmark[12].y,
-                        ),
-                        (
-                            results.pose_landmarks.landmark[14].x,
-                            results.pose_landmarks.landmark[14].y,
-                        ),
-                    ),
-                    "Antebrazo": calcular_pendiente(
-                        (
-                            results.pose_landmarks.landmark[14].x,
-                            results.pose_landmarks.landmark[14].y,
-                        ),
-                        (
-                            results.pose_landmarks.landmark[16].x,
-                            results.pose_landmarks.landmark[16].y,
-                        ),
-                    ),
+                    "Brazo": calcular_pendiente((results.pose_landmarks.landmark[12].x,results.pose_landmarks.landmark[12].y,),(results.pose_landmarks.landmark[14].x,results.pose_landmarks.landmark[14].y,),),
+                    "Antebrazo": calcular_pendiente((results.pose_landmarks.landmark[14].x,results.pose_landmarks.landmark[14].y,),(results.pose_landmarks.landmark[16].x,results.pose_landmarks.landmark[16].y,),),
                 }
                 else:
                     frame_data["datos_brazos"]["Brazo Derecho"] = {
@@ -229,216 +193,27 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                     puntosDer.append([results.right_hand_landmarks.landmark[16].x, results.right_hand_landmarks.landmark[16].y])
                     puntosDer.append([results.right_hand_landmarks.landmark[20].x, results.right_hand_landmarks.landmark[20].y])
                     frame_data["datos_brazos"]["Mano Derecha"] = {
-                    "0_1": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[0].x,
-                            results.right_hand_landmarks.landmark[0].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[1].x,
-                            results.right_hand_landmarks.landmark[1].y,
-                        ),
-                    ),
-                    "1_2": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[1].x,
-                            results.right_hand_landmarks.landmark[1].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[2].x,
-                            results.right_hand_landmarks.landmark[2].y,
-                        ),
-                    ),
-                    "2_3": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[2].x,
-                            results.right_hand_landmarks.landmark[2].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[3].x,
-                            results.right_hand_landmarks.landmark[3].y,
-                        ),
-                    ),
-                    "3_4": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[3].x,
-                            results.right_hand_landmarks.landmark[3].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[4].x,
-                            results.right_hand_landmarks.landmark[4].y,
-                        ),
-                    ),
-                    "0_5": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[0].x,
-                            results.right_hand_landmarks.landmark[0].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[5].x,
-                            results.right_hand_landmarks.landmark[5].y,
-                        ),
-                    ),
-                    "5_6": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[5].x,
-                            results.right_hand_landmarks.landmark[5].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[6].x,
-                            results.right_hand_landmarks.landmark[6].y,
-                        ),
-                    ),
-                    "6_7": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[6].x,
-                            results.right_hand_landmarks.landmark[6].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[7].x,
-                            results.right_hand_landmarks.landmark[7].y,
-                        ),
-                    ),
-                    "7_8": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[7].x,
-                            results.right_hand_landmarks.landmark[7].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[8].x,
-                            results.right_hand_landmarks.landmark[8].y,
-                        ),
-                    ),
-                    "5_9": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[5].x,
-                            results.right_hand_landmarks.landmark[5].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[9].x,
-                            results.right_hand_landmarks.landmark[9].y,
-                        ),
-                    ),
-                    "9_10": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[9].x,
-                            results.right_hand_landmarks.landmark[9].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[10].x,
-                            results.right_hand_landmarks.landmark[10].y,
-                        ),
-                    ),
-                    "10_11": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[10].x,
-                            results.right_hand_landmarks.landmark[10].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[11].x,
-                            results.right_hand_landmarks.landmark[11].y,
-                        ),
-                    ),
-                    "11_12": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[11].x,
-                            results.right_hand_landmarks.landmark[11].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[12].x,
-                            results.right_hand_landmarks.landmark[12].y,
-                        ),
-                    ),
-                    "9_13": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[9].x,
-                            results.right_hand_landmarks.landmark[9].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[13].x,
-                            results.right_hand_landmarks.landmark[13].y,
-                        ),
-                    ),
-                    "13_14": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[13].x,
-                            results.right_hand_landmarks.landmark[13].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[14].x,
-                            results.right_hand_landmarks.landmark[14].y,
-                        ),
-                    ),
-                    "14_15": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[14].x,
-                            results.right_hand_landmarks.landmark[14].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[15].x,
-                            results.right_hand_landmarks.landmark[15].y,
-                        ),
-                    ),
-                    "15_16": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[15].x,
-                            results.right_hand_landmarks.landmark[15].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[16].x,
-                            results.right_hand_landmarks.landmark[16].y,
-                        ),
-                    ),
-                    "13_17": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[13].x,
-                            results.right_hand_landmarks.landmark[13].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[17].x,
-                            results.right_hand_landmarks.landmark[17].y,
-                        ),
-                    ),
-                    "0_17": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[0].x,
-                            results.right_hand_landmarks.landmark[0].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[17].x,
-                            results.right_hand_landmarks.landmark[17].y,
-                        ),
-                    ),
-                    "17_18": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[17].x,
-                            results.right_hand_landmarks.landmark[17].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[18].x,
-                            results.right_hand_landmarks.landmark[18].y,
-                        ),
-                    ),
-                    "18_19": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[18].x,
-                            results.right_hand_landmarks.landmark[18].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[19].x,
-                            results.right_hand_landmarks.landmark[19].y,
-                        ),
-                    ),
-                    "19_20": calcular_pendiente(
-                        (
-                            results.right_hand_landmarks.landmark[19].x,
-                            results.right_hand_landmarks.landmark[19].y,
-                        ),
-                        (
-                            results.right_hand_landmarks.landmark[20].x,
-                            results.right_hand_landmarks.landmark[20].y,
-                        ),
-                    ),
+                    "0_1": calcular_pendiente((results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[1].x, results.right_hand_landmarks.landmark[1].y,),),
+                    "1_2": calcular_pendiente((results.right_hand_landmarks.landmark[1].x,results.right_hand_landmarks.landmark[1].y,),(results.right_hand_landmarks.landmark[2].x,results.right_hand_landmarks.landmark[2].y,),),
+                    "2_3": calcular_pendiente((results.right_hand_landmarks.landmark[2].x, results.right_hand_landmarks.landmark[2].y,), ( results.right_hand_landmarks.landmark[3].x, results.right_hand_landmarks.landmark[3].y, ),),
+                    "3_4": calcular_pendiente((results.right_hand_landmarks.landmark[3].x, results.right_hand_landmarks.landmark[3].y,),(results.right_hand_landmarks.landmark[4].x,results.right_hand_landmarks.landmark[4].y,),),
+                    "0_5": calcular_pendiente( (results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[5].x, results.right_hand_landmarks.landmark[5].y, ),),
+                    "5_6": calcular_pendiente((results.right_hand_landmarks.landmark[5].x,results.right_hand_landmarks.landmark[5].y,),(results.right_hand_landmarks.landmark[6].x,results.right_hand_landmarks.landmark[6].y,),),
+                    "6_7": calcular_pendiente((results.right_hand_landmarks.landmark[6].x,results.right_hand_landmarks.landmark[6].y, ),(results.right_hand_landmarks.landmark[7].x, results.right_hand_landmarks.landmark[7].y,),),
+                    "7_8": calcular_pendiente((results.right_hand_landmarks.landmark[7].x,results.right_hand_landmarks.landmark[7].y,), (results.right_hand_landmarks.landmark[8].x, results.right_hand_landmarks.landmark[8].y,),),
+                    "5_9": calcular_pendiente((results.right_hand_landmarks.landmark[5].x,results.right_hand_landmarks.landmark[5].y,),(results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),),
+                    "9_10": calcular_pendiente((results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),(results.right_hand_landmarks.landmark[10].x,results.right_hand_landmarks.landmark[10].y,),),
+                    "10_11": calcular_pendiente((results.right_hand_landmarks.landmark[10].x,results.right_hand_landmarks.landmark[10].y,), (results.right_hand_landmarks.landmark[11].x,results.right_hand_landmarks.landmark[11].y,), ),
+                    "11_12": calcular_pendiente((results.right_hand_landmarks.landmark[11].x,results.right_hand_landmarks.landmark[11].y,),(results.right_hand_landmarks.landmark[12].x,results.right_hand_landmarks.landmark[12].y,),),
+                    "9_13": calcular_pendiente((results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),(results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),),
+                    "13_14": calcular_pendiente((results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),(results.right_hand_landmarks.landmark[14].x,results.right_hand_landmarks.landmark[14].y,),),
+                    "14_15": calcular_pendiente((results.right_hand_landmarks.landmark[14].x,results.right_hand_landmarks.landmark[14].y,),(results.right_hand_landmarks.landmark[15].x,results.right_hand_landmarks.landmark[15].y,),),
+                    "15_16": calcular_pendiente((results.right_hand_landmarks.landmark[15].x,results.right_hand_landmarks.landmark[15].y,),(results.right_hand_landmarks.landmark[16].x,results.right_hand_landmarks.landmark[16].y,),),
+                    "13_17": calcular_pendiente((results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),(results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),),
+                    "0_17": calcular_pendiente((results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),),
+                    "17_18": calcular_pendiente((results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),(results.right_hand_landmarks.landmark[18].x,results.right_hand_landmarks.landmark[18].y,),),
+                    "18_19": calcular_pendiente((results.right_hand_landmarks.landmark[18].x,results.right_hand_landmarks.landmark[18].y,),(results.right_hand_landmarks.landmark[19].x, results.right_hand_landmarks.landmark[19].y,),),
+                    "19_20": calcular_pendiente((results.right_hand_landmarks.landmark[19].x,results.right_hand_landmarks.landmark[19].y,),(results.right_hand_landmarks.landmark[20].x,results.right_hand_landmarks.landmark[20].y,),),
                 }
 
                 else:
@@ -484,217 +259,29 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                     puntosIzq.append([results.left_hand_landmarks.landmark[12].x,results.left_hand_landmarks.landmark[12].y])
                     puntosIzq.append([results.left_hand_landmarks.landmark[16].x,results.left_hand_landmarks.landmark[16].y])
                     puntosIzq.append([results.left_hand_landmarks.landmark[20].x,results.left_hand_landmarks.landmark[20].y])
+
                     frame_data["datos_brazos"]["Mano Izquierda"] = {
-                    "0_1": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[0].x,
-                            results.left_hand_landmarks.landmark[0].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[1].x,
-                            results.left_hand_landmarks.landmark[1].y,
-                        ),
-                    ),
-                    "1_2": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[1].x,
-                            results.left_hand_landmarks.landmark[1].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[2].x,
-                            results.left_hand_landmarks.landmark[2].y,
-                        ),
-                    ),
-                    "2_3": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[2].x,
-                            results.left_hand_landmarks.landmark[2].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[3].x,
-                            results.left_hand_landmarks.landmark[3].y,
-                        ),
-                    ),
-                    "3_4": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[3].x,
-                            results.left_hand_landmarks.landmark[3].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[4].x,
-                            results.left_hand_landmarks.landmark[4].y,
-                        ),
-                    ),
-                    "0_5": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[0].x,
-                            results.left_hand_landmarks.landmark[0].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[5].x,
-                            results.left_hand_landmarks.landmark[5].y,
-                        ),
-                    ),
-                    "5_6": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[5].x,
-                            results.left_hand_landmarks.landmark[5].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[6].x,
-                            results.left_hand_landmarks.landmark[6].y,
-                        ),
-                    ),
-                    "6_7": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[6].x,
-                            results.left_hand_landmarks.landmark[6].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[7].x,
-                            results.left_hand_landmarks.landmark[7].y,
-                        ),
-                    ),
-                    "7_8": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[7].x,
-                            results.left_hand_landmarks.landmark[7].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[8].x,
-                            results.left_hand_landmarks.landmark[8].y,
-                        ),
-                    ),
-                    "5_9": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[5].x,
-                            results.left_hand_landmarks.landmark[5].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[9].x,
-                            results.left_hand_landmarks.landmark[9].y,
-                        ),
-                    ),
-                    "9_10": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[9].x,
-                            results.left_hand_landmarks.landmark[9].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[10].x,
-                            results.left_hand_landmarks.landmark[10].y,
-                        ),
-                    ),
-                    "10_11": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[10].x,
-                            results.left_hand_landmarks.landmark[10].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[11].x,
-                            results.left_hand_landmarks.landmark[11].y,
-                        ),
-                    ),
-                    "11_12": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[11].x,
-                            results.left_hand_landmarks.landmark[11].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[12].x,
-                            results.left_hand_landmarks.landmark[12].y,
-                        ),
-                    ),
-                    "9_13": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[9].x,
-                            results.left_hand_landmarks.landmark[9].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[13].x,
-                            results.left_hand_landmarks.landmark[13].y,
-                        ),
-                    ),
-                    "13_14": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[13].x,
-                            results.left_hand_landmarks.landmark[13].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[14].x,
-                            results.left_hand_landmarks.landmark[14].y,
-                        ),
-                    ),
-                    "14_15": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[14].x,
-                            results.left_hand_landmarks.landmark[14].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[15].x,
-                            results.left_hand_landmarks.landmark[15].y,
-                        ),
-                    ),
-                    "15_16": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[15].x,
-                            results.left_hand_landmarks.landmark[15].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[16].x,
-                            results.left_hand_landmarks.landmark[16].y,
-                        ),
-                    ),
-                    "13_17": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[13].x,
-                            results.left_hand_landmarks.landmark[13].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[17].x,
-                            results.left_hand_landmarks.landmark[17].y,
-                        ),
-                    ),
-                    "0_17": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[0].x,
-                            results.left_hand_landmarks.landmark[0].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[17].x,
-                            results.left_hand_landmarks.landmark[17].y,
-                        ),
-                    ),
-                    "17_18": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[17].x,
-                            results.left_hand_landmarks.landmark[17].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[18].x,
-                            results.left_hand_landmarks.landmark[18].y,
-                        ),
-                    ),
-                    "18_19": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[18].x,
-                            results.left_hand_landmarks.landmark[18].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[19].x,
-                            results.left_hand_landmarks.landmark[19].y,
-                        ),
-                    ),
-                    "19_20": calcular_pendiente(
-                        (
-                            results.left_hand_landmarks.landmark[19].x,
-                            results.left_hand_landmarks.landmark[19].y,
-                        ),
-                        (
-                            results.left_hand_landmarks.landmark[20].x,
-                            results.left_hand_landmarks.landmark[20].y,
-                        ),
-                    ),
+                    "0_1": calcular_pendiente((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[1].x,results.left_hand_landmarks.landmark[1].y,),),
+                    "1_2": calcular_pendiente((results.left_hand_landmarks.landmark[1].x,results.left_hand_landmarks.landmark[1].y,),(results.left_hand_landmarks.landmark[2].x,results.left_hand_landmarks.landmark[2].y,),),
+                    "2_3": calcular_pendiente((results.left_hand_landmarks.landmark[2].x,results.left_hand_landmarks.landmark[2].y,),(results.left_hand_landmarks.landmark[3].x,results.left_hand_landmarks.landmark[3].y,),),
+                    "3_4": calcular_pendiente((results.left_hand_landmarks.landmark[3].x,results.left_hand_landmarks.landmark[3].y,),(results.left_hand_landmarks.landmark[4].x,results.left_hand_landmarks.landmark[4].y,),),
+                    "0_5": calcular_pendiente((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),),
+                    "5_6": calcular_pendiente((results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),(results.left_hand_landmarks.landmark[6].x,results.left_hand_landmarks.landmark[6].y,),),
+                    "6_7": calcular_pendiente((results.left_hand_landmarks.landmark[6].x,results.left_hand_landmarks.landmark[6].y,),(results.left_hand_landmarks.landmark[7].x,results.left_hand_landmarks.landmark[7].y,),),
+                    "7_8": calcular_pendiente((results.left_hand_landmarks.landmark[7].x,results.left_hand_landmarks.landmark[7].y,),(results.left_hand_landmarks.landmark[8].x,results.left_hand_landmarks.landmark[8].y,),),
+                    "5_9": calcular_pendiente((results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),(results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),),
+                    "9_10": calcular_pendiente((results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),(results.left_hand_landmarks.landmark[10].x,results.left_hand_landmarks.landmark[10].y,),),
+                    "10_11": calcular_pendiente((results.left_hand_landmarks.landmark[10].x,results.left_hand_landmarks.landmark[10].y,),(results.left_hand_landmarks.landmark[11].x,results.left_hand_landmarks.landmark[11].y,),),
+                    "11_12": calcular_pendiente((results.left_hand_landmarks.landmark[11].x,results.left_hand_landmarks.landmark[11].y,),(results.left_hand_landmarks.landmark[12].x,results.left_hand_landmarks.landmark[12].y,),),
+                    "9_13": calcular_pendiente((results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),(results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),),
+                    "13_14": calcular_pendiente((results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),(results.left_hand_landmarks.landmark[14].x,results.left_hand_landmarks.landmark[14].y,),),
+                    "14_15": calcular_pendiente((results.left_hand_landmarks.landmark[14].x,results.left_hand_landmarks.landmark[14].y,),(results.left_hand_landmarks.landmark[15].x,results.left_hand_landmarks.landmark[15].y,),),
+                    "15_16": calcular_pendiente((results.left_hand_landmarks.landmark[15].x,results.left_hand_landmarks.landmark[15].y,),(results.left_hand_landmarks.landmark[16].x,results.left_hand_landmarks.landmark[16].y,),),
+                    "13_17": calcular_pendiente((results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),(results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),),
+                    "0_17": calcular_pendiente((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),),
+                    "17_18": calcular_pendiente((results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),(results.left_hand_landmarks.landmark[18].x,results.left_hand_landmarks.landmark[18].y,),),
+                    "18_19": calcular_pendiente((results.left_hand_landmarks.landmark[18].x,results.left_hand_landmarks.landmark[18].y,),(results.left_hand_landmarks.landmark[19].x,results.left_hand_landmarks.landmark[19].y,),),
+                    "19_20": calcular_pendiente((results.left_hand_landmarks.landmark[19].x,results.left_hand_landmarks.landmark[19].y,),(results.left_hand_landmarks.landmark[20].x,results.left_hand_landmarks.landmark[20].y,),),
                 }
                 else:
                     puntosIzq = [
@@ -741,10 +328,14 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                 #print(json_formateado)
                 #json_formateado = json.dumps(variacion(frame_data), indent=4, ensure_ascii=False)
                 #print(variacion(frame_data)["datos_brazos"]["Mano Izquierda"]["variable"]
+                print("====================================================")
+                print("====================================================")
+                print(puntosDer)
                 print(len(puntosDer))
                 print(len(puntosIzq))
                 print(len(tempPuntosDer))
                 print(len(tempPuntosIzq))
+                print("====================================================")
                 
                 frame_data = variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
 
@@ -752,6 +343,12 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                 tempPuntosIzq = puntosIzq
                 puntosDer = []
                 puntosIzq = []
+                print(len(puntosDer))
+                print(len(puntosIzq))
+                print(len(tempPuntosDer))
+                print(len(tempPuntosIzq))
+                print("====================================================")
+                print("====================================================")
 
             # ====================================================================
                 prediccion, confianza = clasificacion(frame_data)
@@ -772,16 +369,6 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
      cap.release()
      cv2.destroyAllWindows()
 
-
-
-"""   
-# Guardar los datos en un archivo JSON
-with open("Datos.json", "w") as f:
-    json.dump(frames_data, f, indent=4)
-
-print("Datos guardados en frames_data_nueva_estructura.json")
-print(f"Total de fotogramas capturados: {len(frames_data)}")
-"""
 if __name__ == '__main__':
     
     leerVideo = LecturaVideos()
