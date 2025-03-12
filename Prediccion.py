@@ -18,8 +18,22 @@ scaler_path = "scaler.pkl"
 rutaCSV = "correcciones.csv"
 clases = ["A","B","C","D","E","F","G","H","Z"]
 frames_data = []
-puntosDer = []
-puntosIzq = []
+puntosDer = [
+    [0,0],
+    [0,0],
+    [0,0],
+    [0,0],
+    [0,0],
+    [0,0]
+]
+puntosIzq = [
+    [0,0],
+    [0,0],
+    [0,0],
+    [0,0],
+    [0,0],
+    [0,0]
+]
 
 tempPuntosDer = [
     [0,0],
@@ -161,6 +175,10 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                 results = holistic.process(frame_rgb)
 
             # Diccionario para almacenar los datos del fotograma actual
+                tempPuntosDer = puntosDer
+                tempPuntosIzq = puntosIzq
+                puntosDer = []
+                puntosIzq = []
                 frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
 
             # Postura (brazos)
@@ -328,27 +346,7 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                 #print(json_formateado)
                 #json_formateado = json.dumps(variacion(frame_data), indent=4, ensure_ascii=False)
                 #print(variacion(frame_data)["datos_brazos"]["Mano Izquierda"]["variable"]
-                print("====================================================")
-                print("====================================================")
-                print(puntosDer)
-                print(len(puntosDer))
-                print(len(puntosIzq))
-                print(len(tempPuntosDer))
-                print(len(tempPuntosIzq))
-                print("====================================================")
-                
                 frame_data = variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-
-                tempPuntosDer = puntosDer
-                tempPuntosIzq = puntosIzq
-                puntosDer = []
-                puntosIzq = []
-                print(len(puntosDer))
-                print(len(puntosIzq))
-                print(len(tempPuntosDer))
-                print(len(tempPuntosIzq))
-                print("====================================================")
-                print("====================================================")
 
             # ====================================================================
                 prediccion, confianza = clasificacion(frame_data)
@@ -371,16 +369,16 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
 
 if __name__ == '__main__':
     
-    leerVideo = LecturaVideos()
+    """leerVideo = LecturaVideos()
     for ruta in leerVideo.extraccion(rutaDataSet):
         camara(2, last_capture_time, cv2.VideoCapture(ruta[0]), ruta[1], puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-        #print(ruta[1])
+        #print(ruta[1])"""
     #gaurdar.Entrenar(rutaCSV, model_path, clases)
     #Este de aqui es para entrenar lo que se tiene en el csv, descomentar solo para reeentrenar
     #if ( os.path.exists(rutaCSV)and input("¿Reentrenar el modelo? (s/n): ").strip().lower() == "s"): gaurdar.reentrenar_modelo(rutaCSV, model_path, model, scaler, clases)
     
 
 
-    #captura = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-    #camara(1, last_capture_time, captura, "")
+    captura = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    camara(1, last_capture_time, captura, "", puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
 
