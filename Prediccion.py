@@ -10,6 +10,7 @@ import os
 from sklearn.preprocessing import StandardScaler
 from LecturaJson import GuardadCSv
 from LecturaVideos import LecturaVideos
+from PreProcesamiento import PreProcesamiento
 
 
 model_path = "Letras.h5"
@@ -34,7 +35,6 @@ puntosIzq = [
     [0,0],
     [0,0]
 ]
-
 tempPuntosDer = [
     [0,0],
     [0,0],
@@ -54,6 +54,7 @@ tempPuntosIzq = [
 ]
 
 gaurdar = GuardadCSv()
+preProceso = PreProcesamiento()
 
 model = tf.keras.models.load_model(model_path)
 scaler = joblib.load(scaler_path)
@@ -93,7 +94,7 @@ def clasificacion(json_input):
         return "Error en procesamiento", 0.0
 
 
-def calcular_pendiente(punto1, punto2):
+def m(punto1, punto2): #Calcula la pendiente
     x1, y1 = punto1
     x2, y2 = punto2
     if x2 - x1 == 0:  # Evitar división por cero
@@ -158,38 +159,16 @@ def mostrarCamara(prediccion, confianza, frame):
     cv2.putText(frame,f"{prediccion} ({confianza:.0%})",(10, 50),cv2.FONT_HERSHEY_SIMPLEX,1,(0, 255, 0),2,)
     cv2.imshow("Prediccion", frame)
 
-def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq):
-     with mp_holistic.Holistic(static_image_mode=False, model_complexity=1) as holistic:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-        # Calcular el tiempo transcurrido desde el último fotograma capturado
-            current_time = time.time()
-            elapsed_time = current_time - last_capture_time
-
-        # Capturar solo 5 fotogramas por segundo
-            if elapsed_time >= 0.2:  # 1 segundo / 5 = 0.2 segundos por fotograma
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = holistic.process(frame_rgb)
-
-            # Diccionario para almacenar los datos del fotograma actual
-                tempPuntosDer = puntosDer
-                tempPuntosIzq = puntosIzq
-                puntosDer = []
-                puntosIzq = []
-                frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
-
-            # Postura (brazos)
+def pendiente(results, frame_data, puntosDer, puntosIzq):
+    # Postura (brazos)
                 if results.pose_landmarks:
                     frame_data["datos_brazos"]["Brazo Derecho"] = {
-                    "Brazo": calcular_pendiente((results.pose_landmarks.landmark[11].x,results.pose_landmarks.landmark[11].y,),(results.pose_landmarks.landmark[13].x,results.pose_landmarks.landmark[13].y,),),
-                    "Antebrazo": calcular_pendiente((results.pose_landmarks.landmark[13].x,results.pose_landmarks.landmark[13].y,),(results.pose_landmarks.landmark[15].x,results.pose_landmarks.landmark[15].y,),),
+                    "Brazo": m((results.pose_landmarks.landmark[11].x,results.pose_landmarks.landmark[11].y,),(results.pose_landmarks.landmark[13].x,results.pose_landmarks.landmark[13].y,),),
+                    "Antebrazo": m((results.pose_landmarks.landmark[13].x,results.pose_landmarks.landmark[13].y,),(results.pose_landmarks.landmark[15].x,results.pose_landmarks.landmark[15].y,),),
                 }
                     frame_data["datos_brazos"]["Brazo Izquierdo"] = {
-                    "Brazo": calcular_pendiente((results.pose_landmarks.landmark[12].x,results.pose_landmarks.landmark[12].y,),(results.pose_landmarks.landmark[14].x,results.pose_landmarks.landmark[14].y,),),
-                    "Antebrazo": calcular_pendiente((results.pose_landmarks.landmark[14].x,results.pose_landmarks.landmark[14].y,),(results.pose_landmarks.landmark[16].x,results.pose_landmarks.landmark[16].y,),),
+                    "Brazo": m((results.pose_landmarks.landmark[12].x,results.pose_landmarks.landmark[12].y,),(results.pose_landmarks.landmark[14].x,results.pose_landmarks.landmark[14].y,),),
+                    "Antebrazo": m((results.pose_landmarks.landmark[14].x,results.pose_landmarks.landmark[14].y,),(results.pose_landmarks.landmark[16].x,results.pose_landmarks.landmark[16].y,),),
                 }
                 else:
                     frame_data["datos_brazos"]["Brazo Derecho"] = {
@@ -211,27 +190,27 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                     puntosDer.append([results.right_hand_landmarks.landmark[16].x, results.right_hand_landmarks.landmark[16].y])
                     puntosDer.append([results.right_hand_landmarks.landmark[20].x, results.right_hand_landmarks.landmark[20].y])
                     frame_data["datos_brazos"]["Mano Derecha"] = {
-                    "0_1": calcular_pendiente((results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[1].x, results.right_hand_landmarks.landmark[1].y,),),
-                    "1_2": calcular_pendiente((results.right_hand_landmarks.landmark[1].x,results.right_hand_landmarks.landmark[1].y,),(results.right_hand_landmarks.landmark[2].x,results.right_hand_landmarks.landmark[2].y,),),
-                    "2_3": calcular_pendiente((results.right_hand_landmarks.landmark[2].x, results.right_hand_landmarks.landmark[2].y,), ( results.right_hand_landmarks.landmark[3].x, results.right_hand_landmarks.landmark[3].y, ),),
-                    "3_4": calcular_pendiente((results.right_hand_landmarks.landmark[3].x, results.right_hand_landmarks.landmark[3].y,),(results.right_hand_landmarks.landmark[4].x,results.right_hand_landmarks.landmark[4].y,),),
-                    "0_5": calcular_pendiente( (results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[5].x, results.right_hand_landmarks.landmark[5].y, ),),
-                    "5_6": calcular_pendiente((results.right_hand_landmarks.landmark[5].x,results.right_hand_landmarks.landmark[5].y,),(results.right_hand_landmarks.landmark[6].x,results.right_hand_landmarks.landmark[6].y,),),
-                    "6_7": calcular_pendiente((results.right_hand_landmarks.landmark[6].x,results.right_hand_landmarks.landmark[6].y, ),(results.right_hand_landmarks.landmark[7].x, results.right_hand_landmarks.landmark[7].y,),),
-                    "7_8": calcular_pendiente((results.right_hand_landmarks.landmark[7].x,results.right_hand_landmarks.landmark[7].y,), (results.right_hand_landmarks.landmark[8].x, results.right_hand_landmarks.landmark[8].y,),),
-                    "5_9": calcular_pendiente((results.right_hand_landmarks.landmark[5].x,results.right_hand_landmarks.landmark[5].y,),(results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),),
-                    "9_10": calcular_pendiente((results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),(results.right_hand_landmarks.landmark[10].x,results.right_hand_landmarks.landmark[10].y,),),
-                    "10_11": calcular_pendiente((results.right_hand_landmarks.landmark[10].x,results.right_hand_landmarks.landmark[10].y,), (results.right_hand_landmarks.landmark[11].x,results.right_hand_landmarks.landmark[11].y,), ),
-                    "11_12": calcular_pendiente((results.right_hand_landmarks.landmark[11].x,results.right_hand_landmarks.landmark[11].y,),(results.right_hand_landmarks.landmark[12].x,results.right_hand_landmarks.landmark[12].y,),),
-                    "9_13": calcular_pendiente((results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),(results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),),
-                    "13_14": calcular_pendiente((results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),(results.right_hand_landmarks.landmark[14].x,results.right_hand_landmarks.landmark[14].y,),),
-                    "14_15": calcular_pendiente((results.right_hand_landmarks.landmark[14].x,results.right_hand_landmarks.landmark[14].y,),(results.right_hand_landmarks.landmark[15].x,results.right_hand_landmarks.landmark[15].y,),),
-                    "15_16": calcular_pendiente((results.right_hand_landmarks.landmark[15].x,results.right_hand_landmarks.landmark[15].y,),(results.right_hand_landmarks.landmark[16].x,results.right_hand_landmarks.landmark[16].y,),),
-                    "13_17": calcular_pendiente((results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),(results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),),
-                    "0_17": calcular_pendiente((results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),),
-                    "17_18": calcular_pendiente((results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),(results.right_hand_landmarks.landmark[18].x,results.right_hand_landmarks.landmark[18].y,),),
-                    "18_19": calcular_pendiente((results.right_hand_landmarks.landmark[18].x,results.right_hand_landmarks.landmark[18].y,),(results.right_hand_landmarks.landmark[19].x, results.right_hand_landmarks.landmark[19].y,),),
-                    "19_20": calcular_pendiente((results.right_hand_landmarks.landmark[19].x,results.right_hand_landmarks.landmark[19].y,),(results.right_hand_landmarks.landmark[20].x,results.right_hand_landmarks.landmark[20].y,),),
+                    "0_1": m((results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[1].x, results.right_hand_landmarks.landmark[1].y,),),
+                    "1_2": m((results.right_hand_landmarks.landmark[1].x,results.right_hand_landmarks.landmark[1].y,),(results.right_hand_landmarks.landmark[2].x,results.right_hand_landmarks.landmark[2].y,),),
+                    "2_3": m((results.right_hand_landmarks.landmark[2].x, results.right_hand_landmarks.landmark[2].y,), ( results.right_hand_landmarks.landmark[3].x, results.right_hand_landmarks.landmark[3].y, ),),
+                    "3_4": m((results.right_hand_landmarks.landmark[3].x, results.right_hand_landmarks.landmark[3].y,),(results.right_hand_landmarks.landmark[4].x,results.right_hand_landmarks.landmark[4].y,),),
+                    "0_5": m( (results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[5].x, results.right_hand_landmarks.landmark[5].y, ),),
+                    "5_6": m((results.right_hand_landmarks.landmark[5].x,results.right_hand_landmarks.landmark[5].y,),(results.right_hand_landmarks.landmark[6].x,results.right_hand_landmarks.landmark[6].y,),),
+                    "6_7": m((results.right_hand_landmarks.landmark[6].x,results.right_hand_landmarks.landmark[6].y, ),(results.right_hand_landmarks.landmark[7].x, results.right_hand_landmarks.landmark[7].y,),),
+                    "7_8": m((results.right_hand_landmarks.landmark[7].x,results.right_hand_landmarks.landmark[7].y,), (results.right_hand_landmarks.landmark[8].x, results.right_hand_landmarks.landmark[8].y,),),
+                    "5_9": m((results.right_hand_landmarks.landmark[5].x,results.right_hand_landmarks.landmark[5].y,),(results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),),
+                    "9_10": m((results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),(results.right_hand_landmarks.landmark[10].x,results.right_hand_landmarks.landmark[10].y,),),
+                    "10_11": m((results.right_hand_landmarks.landmark[10].x,results.right_hand_landmarks.landmark[10].y,), (results.right_hand_landmarks.landmark[11].x,results.right_hand_landmarks.landmark[11].y,), ),
+                    "11_12": m((results.right_hand_landmarks.landmark[11].x,results.right_hand_landmarks.landmark[11].y,),(results.right_hand_landmarks.landmark[12].x,results.right_hand_landmarks.landmark[12].y,),),
+                    "9_13": m((results.right_hand_landmarks.landmark[9].x,results.right_hand_landmarks.landmark[9].y,),(results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),),
+                    "13_14": m((results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),(results.right_hand_landmarks.landmark[14].x,results.right_hand_landmarks.landmark[14].y,),),
+                    "14_15": m((results.right_hand_landmarks.landmark[14].x,results.right_hand_landmarks.landmark[14].y,),(results.right_hand_landmarks.landmark[15].x,results.right_hand_landmarks.landmark[15].y,),),
+                    "15_16": m((results.right_hand_landmarks.landmark[15].x,results.right_hand_landmarks.landmark[15].y,),(results.right_hand_landmarks.landmark[16].x,results.right_hand_landmarks.landmark[16].y,),),
+                    "13_17": m((results.right_hand_landmarks.landmark[13].x,results.right_hand_landmarks.landmark[13].y,),(results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),),
+                    "0_17": m((results.right_hand_landmarks.landmark[0].x,results.right_hand_landmarks.landmark[0].y,),(results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),),
+                    "17_18": m((results.right_hand_landmarks.landmark[17].x,results.right_hand_landmarks.landmark[17].y,),(results.right_hand_landmarks.landmark[18].x,results.right_hand_landmarks.landmark[18].y,),),
+                    "18_19": m((results.right_hand_landmarks.landmark[18].x,results.right_hand_landmarks.landmark[18].y,),(results.right_hand_landmarks.landmark[19].x, results.right_hand_landmarks.landmark[19].y,),),
+                    "19_20": m((results.right_hand_landmarks.landmark[19].x,results.right_hand_landmarks.landmark[19].y,),(results.right_hand_landmarks.landmark[20].x,results.right_hand_landmarks.landmark[20].y,),),
                 }
 
                 else:
@@ -279,27 +258,27 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                     puntosIzq.append([results.left_hand_landmarks.landmark[20].x,results.left_hand_landmarks.landmark[20].y])
 
                     frame_data["datos_brazos"]["Mano Izquierda"] = {
-                    "0_1": calcular_pendiente((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[1].x,results.left_hand_landmarks.landmark[1].y,),),
-                    "1_2": calcular_pendiente((results.left_hand_landmarks.landmark[1].x,results.left_hand_landmarks.landmark[1].y,),(results.left_hand_landmarks.landmark[2].x,results.left_hand_landmarks.landmark[2].y,),),
-                    "2_3": calcular_pendiente((results.left_hand_landmarks.landmark[2].x,results.left_hand_landmarks.landmark[2].y,),(results.left_hand_landmarks.landmark[3].x,results.left_hand_landmarks.landmark[3].y,),),
-                    "3_4": calcular_pendiente((results.left_hand_landmarks.landmark[3].x,results.left_hand_landmarks.landmark[3].y,),(results.left_hand_landmarks.landmark[4].x,results.left_hand_landmarks.landmark[4].y,),),
-                    "0_5": calcular_pendiente((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),),
-                    "5_6": calcular_pendiente((results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),(results.left_hand_landmarks.landmark[6].x,results.left_hand_landmarks.landmark[6].y,),),
-                    "6_7": calcular_pendiente((results.left_hand_landmarks.landmark[6].x,results.left_hand_landmarks.landmark[6].y,),(results.left_hand_landmarks.landmark[7].x,results.left_hand_landmarks.landmark[7].y,),),
-                    "7_8": calcular_pendiente((results.left_hand_landmarks.landmark[7].x,results.left_hand_landmarks.landmark[7].y,),(results.left_hand_landmarks.landmark[8].x,results.left_hand_landmarks.landmark[8].y,),),
-                    "5_9": calcular_pendiente((results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),(results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),),
-                    "9_10": calcular_pendiente((results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),(results.left_hand_landmarks.landmark[10].x,results.left_hand_landmarks.landmark[10].y,),),
-                    "10_11": calcular_pendiente((results.left_hand_landmarks.landmark[10].x,results.left_hand_landmarks.landmark[10].y,),(results.left_hand_landmarks.landmark[11].x,results.left_hand_landmarks.landmark[11].y,),),
-                    "11_12": calcular_pendiente((results.left_hand_landmarks.landmark[11].x,results.left_hand_landmarks.landmark[11].y,),(results.left_hand_landmarks.landmark[12].x,results.left_hand_landmarks.landmark[12].y,),),
-                    "9_13": calcular_pendiente((results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),(results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),),
-                    "13_14": calcular_pendiente((results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),(results.left_hand_landmarks.landmark[14].x,results.left_hand_landmarks.landmark[14].y,),),
-                    "14_15": calcular_pendiente((results.left_hand_landmarks.landmark[14].x,results.left_hand_landmarks.landmark[14].y,),(results.left_hand_landmarks.landmark[15].x,results.left_hand_landmarks.landmark[15].y,),),
-                    "15_16": calcular_pendiente((results.left_hand_landmarks.landmark[15].x,results.left_hand_landmarks.landmark[15].y,),(results.left_hand_landmarks.landmark[16].x,results.left_hand_landmarks.landmark[16].y,),),
-                    "13_17": calcular_pendiente((results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),(results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),),
-                    "0_17": calcular_pendiente((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),),
-                    "17_18": calcular_pendiente((results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),(results.left_hand_landmarks.landmark[18].x,results.left_hand_landmarks.landmark[18].y,),),
-                    "18_19": calcular_pendiente((results.left_hand_landmarks.landmark[18].x,results.left_hand_landmarks.landmark[18].y,),(results.left_hand_landmarks.landmark[19].x,results.left_hand_landmarks.landmark[19].y,),),
-                    "19_20": calcular_pendiente((results.left_hand_landmarks.landmark[19].x,results.left_hand_landmarks.landmark[19].y,),(results.left_hand_landmarks.landmark[20].x,results.left_hand_landmarks.landmark[20].y,),),
+                    "0_1": m((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[1].x,results.left_hand_landmarks.landmark[1].y,),),
+                    "1_2": m((results.left_hand_landmarks.landmark[1].x,results.left_hand_landmarks.landmark[1].y,),(results.left_hand_landmarks.landmark[2].x,results.left_hand_landmarks.landmark[2].y,),),
+                    "2_3": m((results.left_hand_landmarks.landmark[2].x,results.left_hand_landmarks.landmark[2].y,),(results.left_hand_landmarks.landmark[3].x,results.left_hand_landmarks.landmark[3].y,),),
+                    "3_4": m((results.left_hand_landmarks.landmark[3].x,results.left_hand_landmarks.landmark[3].y,),(results.left_hand_landmarks.landmark[4].x,results.left_hand_landmarks.landmark[4].y,),),
+                    "0_5": m((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),),
+                    "5_6": m((results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),(results.left_hand_landmarks.landmark[6].x,results.left_hand_landmarks.landmark[6].y,),),
+                    "6_7": m((results.left_hand_landmarks.landmark[6].x,results.left_hand_landmarks.landmark[6].y,),(results.left_hand_landmarks.landmark[7].x,results.left_hand_landmarks.landmark[7].y,),),
+                    "7_8": m((results.left_hand_landmarks.landmark[7].x,results.left_hand_landmarks.landmark[7].y,),(results.left_hand_landmarks.landmark[8].x,results.left_hand_landmarks.landmark[8].y,),),
+                    "5_9": m((results.left_hand_landmarks.landmark[5].x,results.left_hand_landmarks.landmark[5].y,),(results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),),
+                    "9_10": m((results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),(results.left_hand_landmarks.landmark[10].x,results.left_hand_landmarks.landmark[10].y,),),
+                    "10_11": m((results.left_hand_landmarks.landmark[10].x,results.left_hand_landmarks.landmark[10].y,),(results.left_hand_landmarks.landmark[11].x,results.left_hand_landmarks.landmark[11].y,),),
+                    "11_12": m((results.left_hand_landmarks.landmark[11].x,results.left_hand_landmarks.landmark[11].y,),(results.left_hand_landmarks.landmark[12].x,results.left_hand_landmarks.landmark[12].y,),),
+                    "9_13": m((results.left_hand_landmarks.landmark[9].x,results.left_hand_landmarks.landmark[9].y,),(results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),),
+                    "13_14": m((results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),(results.left_hand_landmarks.landmark[14].x,results.left_hand_landmarks.landmark[14].y,),),
+                    "14_15": m((results.left_hand_landmarks.landmark[14].x,results.left_hand_landmarks.landmark[14].y,),(results.left_hand_landmarks.landmark[15].x,results.left_hand_landmarks.landmark[15].y,),),
+                    "15_16": m((results.left_hand_landmarks.landmark[15].x,results.left_hand_landmarks.landmark[15].y,),(results.left_hand_landmarks.landmark[16].x,results.left_hand_landmarks.landmark[16].y,),),
+                    "13_17": m((results.left_hand_landmarks.landmark[13].x,results.left_hand_landmarks.landmark[13].y,),(results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),),
+                    "0_17": m((results.left_hand_landmarks.landmark[0].x,results.left_hand_landmarks.landmark[0].y,),(results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),),
+                    "17_18": m((results.left_hand_landmarks.landmark[17].x,results.left_hand_landmarks.landmark[17].y,),(results.left_hand_landmarks.landmark[18].x,results.left_hand_landmarks.landmark[18].y,),),
+                    "18_19": m((results.left_hand_landmarks.landmark[18].x,results.left_hand_landmarks.landmark[18].y,),(results.left_hand_landmarks.landmark[19].x,results.left_hand_landmarks.landmark[19].y,),),
+                    "19_20": m((results.left_hand_landmarks.landmark[19].x,results.left_hand_landmarks.landmark[19].y,),(results.left_hand_landmarks.landmark[20].x,results.left_hand_landmarks.landmark[20].y,),),
                 }
                 else:
                     puntosIzq = [
@@ -334,31 +313,49 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                     "18_19": 0,
                     "19_20": 0,
                 }
+                return frame_data, puntosDer, puntosIzq
 
-            # Voltear el frame horizontalmente
+
+
+def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq):
+     with mp_holistic.Holistic(static_image_mode=False, model_complexity=1) as holistic:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            current_time = time.time()
+            elapsed_time = current_time - last_capture_time
+            if elapsed_time >= 0.2:  # 1 segundo / 5 = 0.2 segundos por fotograma
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                results = holistic.process(frame_rgb)
+
+
+                tempPuntosDer = puntosDer
+                tempPuntosIzq = puntosIzq
+                puntosDer = []
+                puntosIzq = []
+                frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
                 frame = cv2.flip(frame, 1)
-
-            # Actualizar el tiempo del último fotograma capturado
                 last_capture_time = current_time
-
-                #json_formateado = json.dumps(frame_data, indent=4, ensure_ascii=False)
-
-                #print(json_formateado)
-                #json_formateado = json.dumps(variacion(frame_data), indent=4, ensure_ascii=False)
-                #print(variacion(frame_data)["datos_brazos"]["Mano Izquierda"]["variable"]
+                frame_data, puntosDer, puntosIzq = pendiente(results, frame_data, puntosDer, puntosIzq)
+                #========================PRE-PROCESAMIENTO=============================
+                print(preProceso.movimiento(frame_data))
+                preProceso.setJson_P(frame_data)
+                #======================================================================
                 frame_data = variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-
-            # ====================================================================
                 prediccion, confianza = clasificacion(frame_data)
-                
-                print(f"Predicción: {prediccion} (Confianza: {confianza:.2f})")
+                #========================IMPRESIONES EN CONSOLA=========================
+                """json_formateado = json.dumps(frame_data, indent=4, ensure_ascii=False)
+                print(json_formateado)"""
+                #print(f"Predicción: {prediccion} (Confianza: {confianza:.2f})")
+                #========================================================================
                 if opc == 1:
                     mostrarCamara(prediccion, confianza, frame)
                 elif opc == 2:
                     gaurdar.guardadDatos(frame_data, nomClase, rutaCSV)
                 elif opc == 3:
-                   key = gaurdar.validacion(prediccion, frame_data, rutaCSV, clases)
-                   if  key == 27:
+                    key = gaurdar.validacion(prediccion, frame_data, rutaCSV, clases)
+                    if  key == 27:
                        if ( os.path.exists(rutaCSV)and input("¿Reentrenar el modelo? (s/n): ").strip().lower() == "s"): gaurdar.reentrenar_modelo(rutaCSV, model_path, model, scaler, clases)
                        break
 
