@@ -9,7 +9,7 @@ import pandas as pd
 import os
 from sklearn.preprocessing import StandardScaler
 from LecturaJson import GuardadCSv
-from LecturaVideos import LecturaVideos
+from LecturaDataSet import LecturaDataSet
 from PreProcesamiento import PreProcesamiento
 
 
@@ -148,7 +148,7 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
 
 if __name__ == '__main__':
     
-    """leerVideo = LecturaVideos()
+    """leerVideo = LecturaDataSet()
     for ruta in leerVideo.extraccion(rutaDataSet):
         camara(2, last_capture_time, cv2.VideoCapture(ruta[0]), ruta[1], puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
         #print(ruta[1])"""
