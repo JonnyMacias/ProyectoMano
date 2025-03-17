@@ -51,7 +51,7 @@ modelo = Sequential([
 modelo.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 # Entrenar el modelo
-modelo.fit(X_train, y_train, epochs=20, batch_size=8, validation_data=(X_test, y_test))
+modelo.fit(X_train, y_train, epochs=50, batch_size=8, validation_data=(X_test, y_test))
 
 
 modelo.save('Letras.h5')

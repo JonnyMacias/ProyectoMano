@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
 import time
-import json
 import numpy as np
 import tensorflow as tf
 import joblib
@@ -13,45 +12,12 @@ from LecturaDataSet import LecturaDataSet
 from PreProcesamiento import PreProcesamiento
 
 
-model_path = "Letras.h5"
+model_path = "Letras_LSTM.h5"
 rutaDataSet = "DataSet/Entrenamiento"
 scaler_path = "scaler.pkl"
 rutaCSV = "correcciones.csv"
-clases = ["A","B","C","D","E","F","G","H","Z"]
+clases = ["A","B","C","D","E","F","G","H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"]
 frames_data = []
-puntosDer = [
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0]
-]
-puntosIzq = [
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0]
-]
-tempPuntosDer = [
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0]
-    
-]
-tempPuntosIzq = [
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0],
-    [0,0]
-]
 
 gaurdar = GuardadCSv()
 preProceso = PreProcesamiento()
@@ -69,8 +35,74 @@ start_time = time.time()
 frame_counter = 0
 last_capture_time = start_time
 
+def getpuntos():
+    puntosDer = [
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0]
+    ]
+    puntosIzq = [
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0]
+    ]
+    tempPuntosDer = [
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0]
+        
+    ]
+    tempPuntosIzq = [
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0],
+        [0,0]
+    ]
+    return puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq
+
 
 def clasificacion(json_input):
+    try:
+        x = gaurdar.extraccion(json_input)  # Extraer características desde el JSON
+        x = np.array(x)
+
+        # 🔹 Asegurar que la forma es compatible con LSTM
+        x = x.reshape(1, -1)  # Convertir a 2D (1, features)
+        x = scaler.transform(x)  # Escalar los datos
+        x = x.reshape(1, 1, -1)  # 🔥 Convertir a 3D para LSTM (1, timesteps=1, features)
+
+        print("==============================================================================")
+        print("Forma de X antes de la predicción:" + str(x.shape))  # Verificar que sea (1, 1, features)
+
+        # Hacer la predicción
+        predicciones = model.predict(x, verbose=0)
+        clase_idx = np.argmax(predicciones)
+        confianza = np.max(predicciones)
+
+        # Validar confianza
+        if confianza < 0.5:
+            return "Clase no determinada", confianza
+        if clase_idx >= len(clases):
+            return "Error: Clase desconocida", confianza
+
+        return clases[clase_idx], confianza
+
+    except Exception as e:
+        print(f"Error en clasificación: {str(e)}")
+        return "Error en procesamiento", 0.0
+
+def clasificacionM(json_input):
     try:
         x = gaurdar.extraccion(json_input)
         x = np.array(x)
@@ -98,6 +130,23 @@ def mostrarCamara(prediccion, confianza, frame):
     cv2.imshow("Prediccion", frame)
 
 
+def imagen(ruta, puntosDer, puntosIzq, nomClase):
+    with mp_holistic.Holistic(
+        static_image_mode=True,
+        model_complexity=2) as holistic:
+
+        image = cv2.imread(ruta)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        results = holistic.process(image_rgb)
+        frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
+        frame_data, puntosDer, puntosIzq = preProceso.pendiente(results, frame_data, puntosDer, puntosIzq)
+        puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
+        frame_data = preProceso.variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
+        gaurdar.guardadDatos(frame_data, nomClase, rutaCSV)
+
+        cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq):
      with mp_holistic.Holistic(static_image_mode=False, model_complexity=1) as holistic:
@@ -107,7 +156,7 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                 break
             current_time = time.time()
             elapsed_time = current_time - last_capture_time
-            if elapsed_time >= 0.5:  # 1 segundo / 5 = 0.2 segundos por fotograma
+            if elapsed_time >= 0.2:
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 results = holistic.process(frame_rgb)
 
@@ -148,16 +197,26 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
 
 if __name__ == '__main__':
     
-    """leerVideo = LecturaDataSet()
-    for ruta in leerVideo.extraccion(rutaDataSet):
+    leerVideo = LecturaDataSet()
+    lecturaImg = LecturaDataSet()
+    """for ruta in leerVideo.extraccionVideo(rutaDataSet):
+        preProceso.ReiniciarJson()
+        puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
         camara(2, last_capture_time, cv2.VideoCapture(ruta[0]), ruta[1], puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-        #print(ruta[1])"""
+    """
+    """for ruta in leerVideo.extraccionImagenes(rutaDataSet):
+        preProceso.ReiniciarJson()
+        puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
+        print(ruta[1])
+        imagen(ruta[0], puntosDer, puntosIzq, ruta[1])    
+        """
+        #print(ruta[1])
     #gaurdar.Entrenar(rutaCSV, model_path, clases)
     #Este de aqui es para entrenar lo que se tiene en el csv, descomentar solo para reeentrenar
+    
     #if ( os.path.exists(rutaCSV)and input("¿Reentrenar el modelo? (s/n): ").strip().lower() == "s"): gaurdar.reentrenar_modelo(rutaCSV, model_path, model, scaler, clases)
     
 
-
+    puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
     captura = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     camara(1, last_capture_time, captura, "", puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-
