@@ -91,7 +91,7 @@ def clasificacion(json_input):
         confianza = np.max(predicciones)
 
         # Validar confianza
-        if confianza < 0.5:
+        if confianza < 0.8:
             return "Clase no determinada", confianza
         if clase_idx >= len(clases):
             return "Error: Clase desconocida", confianza
@@ -209,7 +209,7 @@ if __name__ == '__main__':
         puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
         print(ruta[1])
         imagen(ruta[0], puntosDer, puntosIzq, ruta[1])    
-        """
+       """ 
         #print(ruta[1])
     #gaurdar.Entrenar(rutaCSV, model_path, clases)
     #Este de aqui es para entrenar lo que se tiene en el csv, descomentar solo para reeentrenar
