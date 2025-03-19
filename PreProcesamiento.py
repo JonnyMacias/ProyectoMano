@@ -1,3 +1,5 @@
+import math
+
 class PreProcesamiento:
     json_P = {
         "id": 1,
@@ -130,7 +132,8 @@ class PreProcesamiento:
         if x2 - x1 == 0:  # Evitar división por cero
             return float("inf")  # Pendiente infinita (línea vertical)
         return (y2 - y1) / (x2 - x1)
-      
+    def angulo(self, m1, m2):
+        return math.atan((m2-m1)/(1 + (m1 * m2)))
     def pendiente(self, results, frame_data, puntosDer, puntosIzq):
         # Postura (brazos)
                 if results.pose_landmarks:
@@ -297,6 +300,17 @@ class PreProcesamiento:
 
     def variacion(self, jason, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq):
         jason ["datos_brazos"]["variable_Derecha"] = {
+            "0Pulgar_1": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["2_3"], jason ["datos_brazos"]["Mano Derecha"]["3_4"]),
+            "0Pulgar_2": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["1_2"], jason ["datos_brazos"]["Mano Derecha"]["2_3"]),
+            "0Indice_1": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["5_6"], jason ["datos_brazos"]["Mano Derecha"]["6_7"]),
+            "0Indice_2": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["5_9"], jason ["datos_brazos"]["Mano Derecha"]["5_6"]),
+            "0Medio_1": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["9_10"], jason ["datos_brazos"]["Mano Derecha"]["10_11"]),
+            "0Medio_2": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["9_13"], jason ["datos_brazos"]["Mano Derecha"]["10_11"]),
+            "0Anular_1": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["13_14"], jason ["datos_brazos"]["Mano Derecha"]["14_15"]),
+            "0Anular_2": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["13_17"], jason ["datos_brazos"]["Mano Derecha"]["13_14"]),
+            "0Menique_1": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["17_18"], jason ["datos_brazos"]["Mano Derecha"]["18_19"]),
+            "0Menique_2": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["13_17"], jason ["datos_brazos"]["Mano Derecha"]["17_18"]),
+            "0Menique_3": self.angulo(jason ["datos_brazos"]["Mano Derecha"]["0_17"], jason ["datos_brazos"]["Mano Derecha"]["17_18"]),
             "0_X": self.desplazamiento(tempPuntosDer, puntosDer)[0][0],
             "0_Y": self.desplazamiento(tempPuntosDer, puntosDer)[0][1],
             "4_X": self.desplazamiento(tempPuntosDer, puntosDer)[1][0],
@@ -313,20 +327,33 @@ class PreProcesamiento:
         }
 
         jason ["datos_brazos"]["variable_Izquierda"] = {
-            "0_X": self.desplazamiento(tempPuntosIzq, puntosIzq)[0][0],
-            "0_Y": self.desplazamiento(tempPuntosIzq, puntosIzq)[0][1],
-            "4_X": self.desplazamiento(tempPuntosIzq, puntosIzq)[1][0],
-            "4_Y": self.desplazamiento(tempPuntosIzq, puntosIzq)[1][1],
-            "8_X": self.desplazamiento(tempPuntosIzq, puntosIzq)[2][0],
-            "8_Y": self.desplazamiento(tempPuntosIzq, puntosIzq)[2][1],
-            "12_X": self.desplazamiento(tempPuntosIzq, puntosIzq)[3][0],
-            "12_Y": self.desplazamiento(tempPuntosIzq, puntosIzq)[3][1],
-            "16_X": self.desplazamiento(tempPuntosIzq, puntosIzq)[4][0],
-            "16_Y": self.desplazamiento(tempPuntosIzq, puntosIzq)[4][1],
-            "20_X": self.desplazamiento(tempPuntosIzq, puntosIzq)[5][0],
-            "20_Y": self.desplazamiento(tempPuntosIzq, puntosIzq)[5][1]
-
+            "0Pulgar_1": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["2_3"], jason ["datos_brazos"]["Mano Izquierda"]["3_4"]),
+            "0Pulgar_2": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["1_2"], jason ["datos_brazos"]["Mano Izquierda"]["2_3"]),
+            "0Indice_1": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["5_6"], jason ["datos_brazos"]["Mano Izquierda"]["6_7"]),
+            "0Indice_2": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["5_9"], jason ["datos_brazos"]["Mano Izquierda"]["5_6"]),
+            "0Medio_1": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["9_10"], jason ["datos_brazos"]["Mano Izquierda"]["10_11"]),
+            "0Medio_2": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["9_13"], jason ["datos_brazos"]["Mano Izquierda"]["10_11"]),
+            "0Anular_1": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["13_14"], jason ["datos_brazos"]["Mano Izquierda"]["14_15"]),
+            "0Anular_2": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["13_17"], jason ["datos_brazos"]["Mano Izquierda"]["13_14"]),
+            "0Menique_1": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["17_18"], jason ["datos_brazos"]["Mano Izquierda"]["18_19"]),
+            "0Menique_2": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["13_17"], jason ["datos_brazos"]["Mano Izquierda"]["17_18"]),
+            "0Menique_3": self.angulo(jason ["datos_brazos"]["Mano Izquierda"]["0_17"], jason ["datos_brazos"]["Mano Izquierda"]["17_18"]),
+            "0_X": self.desplazamiento(tempPuntosDer, puntosDer)[0][0],
+            "0_Y": self.desplazamiento(tempPuntosDer, puntosDer)[0][1],
+            "4_X": self.desplazamiento(tempPuntosDer, puntosDer)[1][0],
+            "4_Y": self.desplazamiento(tempPuntosDer, puntosDer)[1][1],
+            "8_X": self.desplazamiento(tempPuntosDer, puntosDer)[2][0],
+            "8_Y": self.desplazamiento(tempPuntosDer, puntosDer)[2][1],
+            "12_X": self.desplazamiento(tempPuntosDer, puntosDer)[3][0],
+            "12_Y": self.desplazamiento(tempPuntosDer, puntosDer)[3][1],
+            "16_X": self.desplazamiento(tempPuntosDer, puntosDer)[4][0],
+            "16_Y": self.desplazamiento(tempPuntosDer, puntosDer)[4][1],
+            "20_X": self.desplazamiento(tempPuntosDer, puntosDer)[5][0],
+            "20_Y": self.desplazamiento(tempPuntosDer, puntosDer)[5][1]
+        
         }
+
+
         return jason
 
     def setJson_P(self, jason):
@@ -430,3 +457,5 @@ class PreProcesamiento:
             }
         }
     }
+    
+    

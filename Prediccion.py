@@ -1,3 +1,4 @@
+import json
 import cv2
 import mediapipe as mp
 import time
@@ -168,6 +169,11 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
                 frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
                 frame = cv2.flip(frame, 1)
                 last_capture_time = current_time
+                """ print("==================================PUNTOS==============================================")
+                for i in enumerate(results.right_hand_landmarks.landmark):
+                    print("================" + str(i[0]))
+                    print(i[1])"""
+        
                 frame_data, puntosDer, puntosIzq = preProceso.pendiente(results, frame_data, puntosDer, puntosIzq)
                 #========================PRE-PROCESAMIENTO=============================
                 print(preProceso.movimiento(frame_data))
@@ -208,8 +214,7 @@ if __name__ == '__main__':
         preProceso.ReiniciarJson()
         puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
         print(ruta[1])
-        imagen(ruta[0], puntosDer, puntosIzq, ruta[1])    
-       """ 
+        imagen(ruta[0], puntosDer, puntosIzq, ruta[1])"""
         #print(ruta[1])
     #gaurdar.Entrenar(rutaCSV, model_path, clases)
     #Este de aqui es para entrenar lo que se tiene en el csv, descomentar solo para reeentrenar
