@@ -37,6 +37,17 @@ class GuardadCSv:
     
     def guardadDatos(self, json, clase, ruta):
         x = self.extraccion(json)
+        print("............................."+str(len(x)))
+        df_nuevo = pd.DataFrame([x], columns=[f"feat_{i}" for i in range(len(x))])
+        df_nuevo["clase"] = clase
+        if os.path.exists(ruta):
+            df_nuevo.to_csv(ruta, mode="a", header=False, index=False)
+        else:
+            df_nuevo.to_csv(ruta, index=False)
+
+        print(f"Datos corregidos guardados para la clase {clase}")
+    
+    def guardadDatosVideo(self, x, clase, ruta):
         df_nuevo = pd.DataFrame([x], columns=[f"feat_{i}" for i in range(len(x))])
         df_nuevo["clase"] = clase
         if os.path.exists(ruta):

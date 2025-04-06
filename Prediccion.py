@@ -16,8 +16,8 @@ from PreProcesamiento import PreProcesamiento
 model_path = "Letras_LSTM.h5"
 rutaDataSet = "DataSet/Entrenamiento"
 scaler_path = "scaler.pkl"
-rutaCSV = "correcciones.csv"
-clases = ["A","B","C","D","E","F","G","H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"]
+rutaCSV = "corpues.csv"
+clases = ["A","B","C","D","E","F","G","H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y","Z"]
 frames_data = []
 
 gaurdar = GuardadCSv()
@@ -75,16 +75,17 @@ def getpuntos():
 
 def clasificacion(json_input):
     try:
-        x = gaurdar.extraccion(json_input)  # Extraer características desde el JSON
+        x = gaurdar.extraccion(json_input) 
         x = np.array(x)
+        
 
-        # 🔹 Asegurar que la forma es compatible con LSTM
-        x = x.reshape(1, -1)  # Convertir a 2D (1, features)
-        x = scaler.transform(x)  # Escalar los datos
-        x = x.reshape(1, 1, -1)  # 🔥 Convertir a 3D para LSTM (1, timesteps=1, features)
+        
+        x = x.reshape(1, -1) 
+        x = scaler.transform(x) 
+        x = x.reshape(1, 1, -1) 
 
         print("==============================================================================")
-        print("Forma de X antes de la predicción:" + str(x.shape))  # Verificar que sea (1, 1, features)
+        print("Forma de X antes de la predicción:" + str(x.shape)) 
 
         # Hacer la predicción
         predicciones = model.predict(x, verbose=0)
@@ -92,7 +93,7 @@ def clasificacion(json_input):
         confianza = np.max(predicciones)
 
         # Validar confianza
-        if confianza < 0.8:
+        if confianza < 0.95:
             return "Clase no determinada", confianza
         if clase_idx >= len(clases):
             return "Error: Clase desconocida", confianza
@@ -139,15 +140,70 @@ def imagen(ruta, puntosDer, puntosIzq, nomClase):
         image = cv2.imread(ruta)
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        results = holistic.process(image_rgb)
-        frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
-        frame_data, puntosDer, puntosIzq = preProceso.pendiente(results, frame_data, puntosDer, puntosIzq)
-        puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
-        frame_data = preProceso.variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-        gaurdar.guardadDatos(frame_data, nomClase, rutaCSV)
+        (h, w) = image_rgb.shape[:2]
+        centro = (w // 2, h // 2)
+
+        for i in range(-15, 16, 3):
+            print("Angulo: " + str(i))
+            matriz_rotacion = cv2.getRotationMatrix2D(centro, i, 1.0)
+            imagen_rotada = cv2.warpAffine(image_rgb, matriz_rotacion, (w, h))
+            results = holistic.process(imagen_rotada)
+            frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
+            frame_data, puntosDer, puntosIzq = preProceso.pendiente(results, frame_data, puntosDer, puntosIzq)
+            puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
+            frame_data = preProceso.variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
+            gaurdar.guardadDatos(frame_data, nomClase, rutaCSV)
 
         cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+def video(i,last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq):
+     with mp_holistic.Holistic(static_image_mode=False, model_complexity=1) as holistic:
+        
+        width = int(cap.get(3))
+        height = int(cap.get(4))
+        center = (width // 2, height // 2)
+        fps = int(cap.get(5))
+        conta = 0
+        datosscvlist = []
+        
+        while True:
+           
+            ret, frame = cap.read()
+            if not ret:
+                break
+            current_time = time.time()
+            elapsed_time = current_time - last_capture_time
+            if elapsed_time >= 0.06:
+                conta = conta + 1
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                rotation_matrix = cv2.getRotationMatrix2D(center, i, 1.0)
+                rotated_frame = cv2.warpAffine(frame_rgb, rotation_matrix, (width, height))
+                results = holistic.process(rotated_frame)
+                tempPuntosDer = puntosDer
+                tempPuntosIzq = puntosIzq
+                puntosDer = []
+                puntosIzq = []
+                frame_data = {"id": len(frames_data) + 1, "datos_brazos": {}}
+                frame = cv2.flip(frame, 1)
+                last_capture_time = current_time
+                frame_data, puntosDer, puntosIzq = preProceso.pendiente(results, frame_data, puntosDer, puntosIzq)
+                #========================PRE-PROCESAMIENTO=============================
+                preProceso.setJson_P(frame_data)
+                #======================================================================
+                frame_data = preProceso.variacion(frame_data, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
+                #datosList.append(frame_data)
+                gaurdar.guardadDatos(frame_data, nomClase, rutaCSV)
+        print("---------------------------------------------->>>>>>>"+str(conta))  
+
+        """for i in datosList:
+            for j in gaurdar.extraccion(i):
+                datosscvlist.append(j)
+        if bool(datosscvlist):
+            gaurdar.guardadDatosVideo(datosscvlist, nomClase, rutaCSV)"""
+                
+     cap.release()
+     cv2.destroyAllWindows()
 
 def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq):
      with mp_holistic.Holistic(static_image_mode=False, model_complexity=1) as holistic:
@@ -202,14 +258,16 @@ def camara(opc, last_capture_time, cap, nomClase, puntosDer, puntosIzq, tempPunt
      cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    
+    """
     leerVideo = LecturaDataSet()
     lecturaImg = LecturaDataSet()
-    """for ruta in leerVideo.extraccionVideo(rutaDataSet):
-        preProceso.ReiniciarJson()
-        puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
-        camara(2, last_capture_time, cv2.VideoCapture(ruta[0]), ruta[1], puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
-    """
+    for ruta in leerVideo.extraccionVideo(rutaDataSet):
+        for i in range(-15, 16, 3):
+            print("NUMERO DEL GRADO >>>>>>>>>>>>>>>>>>>" + str(i))
+            preProceso.ReiniciarJson()
+            puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()
+            video(i, last_capture_time, cv2.VideoCapture(ruta[0]), ruta[1], puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq)
+     """
     """for ruta in leerVideo.extraccionImagenes(rutaDataSet):
         preProceso.ReiniciarJson()
         puntosDer, puntosIzq, tempPuntosDer, tempPuntosIzq = getpuntos()

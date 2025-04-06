@@ -119,10 +119,10 @@ class PreProcesamiento:
                 movI.append(datos_A[mano][clave] - datos_P[mano][clave])
 
         for d in movD:
-            if(abs(d) > 45):
+            if(abs(d) > 30):
                 return "Hay movimiento: " + str(d)
         for i in movI:
-            if(abs(i) > 45):
+            if(abs(i) > 30):
                 return "Hay movimiento: " + str(i)
         return "No hay movimiento"
 
